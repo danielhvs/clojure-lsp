@@ -19,3 +19,5 @@ end
 client = vim.lsp.get_client_by_id(id)
 result = client.request_sync("clojure/serverInfo/raw", {}, 5000, 15)  
 print(dump(result))
+print('port = ' .. result.result.port)
+print('log-path = ' .. result.result['log-path'])
