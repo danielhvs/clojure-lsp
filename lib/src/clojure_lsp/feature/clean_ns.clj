@@ -243,6 +243,13 @@
       :else
       node)))
 
+(defn ^:private remove-duplicate-requires
+  [nodes {:keys [duplicate-requires] :as clean-ctx} initial-sep-spaces]
+  (clojure.pprint/pprint {:debug "^:private nodes" :data nodes})
+  (if-let [v (z/find-value (zsub/subzip nodes) z/next 'other.foo)]
+    (z/remove (z/up (z/leftmost v)))
+    nodes))
+
 (defn ^:private remove-unused-requires
   [nodes {:keys [unused-aliases unused-refers] :as clean-ctx} initial-sep-spaces]
   (let [single-require? (= 1 (count (z/child-sexprs nodes)))
@@ -296,7 +303,8 @@
           keep-first-line-spacing (calc-keep-first-line-spacing require-loc)
           removed-nodes (-> require-loc
                             z/remove
-                            (remove-unused-requires clean-ctx col))]
+                            (remove-unused-requires clean-ctx col)
+                            (remove-duplicate-requires clean-ctx col))]
       (process-clean-ns ns-loc removed-nodes col keep-first-line-spacing :require clean-ctx))
     ns-loc))
 
